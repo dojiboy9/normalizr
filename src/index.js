@@ -3,6 +3,7 @@ import IterableSchema from './IterableSchema';
 import UnionSchema from './UnionSchema';
 import isEqual from 'lodash/isEqual';
 import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 
 function defaultAssignEntity(normalized, key, entity) {
   normalized[key] = entity;
@@ -16,9 +17,11 @@ function visitObject(obj, schema, bag, options, collectionKey) {
   let normalized = isObject(defaults) ? { ...defaults } : {};
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
-      const resolvedSchema = typeof schema[key] === 'function' ? schema[key].call(null, obj) : schema[key];
+      const resolvedSchema = (isObject(schema[key]) && !!schema[key].schema && schema[key].schema)
+        || schema[key];
       const entity = visit(obj[key], resolvedSchema, bag, options, collectionKey);
-      assignEntity.call(null, normalized, key, entity, obj, schema);
+      const resolvedKey = (isString(schema[key].resolve) ? schema[key].resolve : key);
+      assignEntity.call(null, normalized, resolvedKey, entity, obj, schema);
       if (schemaAssignEntity) {
         schemaAssignEntity.call(null, normalized, key, entity, obj, schema);
       }
