@@ -5,6 +5,8 @@ import isEqual from 'lodash/isEqual';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
+export { denormalize } from './denormalizr';
+
 function defaultAssignEntity(normalized, key, entity) {
   normalized[key] = entity;
 }
@@ -20,7 +22,7 @@ function visitObject(obj, schema, bag, options, collectionKey) {
       const resolvedSchema = (isObject(schema[key]) && !!schema[key].schema && schema[key].schema)
         || schema[key];
       const entity = visit(obj[key], resolvedSchema, bag, options, collectionKey);
-      const resolvedKey = (isString(schema[key].resolve) ? schema[key].resolve : key);
+      const resolvedKey = (isObject(schema[key]) && isString(schema[key].resolve)) ? schema[key].resolve : key;
       assignEntity.call(null, normalized, resolvedKey, entity, obj, schema);
       if (schemaAssignEntity) {
         schemaAssignEntity.call(null, normalized, key, entity, obj, schema);
@@ -101,7 +103,7 @@ function visitEntity(entity, entitySchema, bag, options, collectionKey) {
 }
 
 function visit(obj, schema, bag, options, collectionKey) {
-  if (!isObject(obj) || !isObject(schema)) {
+  if (!isObject(obj) || obj === null || typeof obj === 'undefined' || !isObject(schema)) {
     return obj;
   }
 
