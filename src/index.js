@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
-export { denormalize } from './denormalizr';
+export { denormalizeAll } from './denormalizr';
 
 function defaultAssignEntity(normalized, key, entity) {
   normalized[key] = entity;
